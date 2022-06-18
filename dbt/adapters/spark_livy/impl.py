@@ -14,10 +14,10 @@ from dbt.adapters.base import AdapterConfig, PythonJobHelper
 from dbt.adapters.base.impl import catch_as_completed
 from dbt.contracts.connection import AdapterResponse
 from dbt.adapters.sql import SQLAdapter
-from dbt.adapters.spark import SparkConnectionManager
-from dbt.adapters.spark import SparkRelation
-from dbt.adapters.spark import SparkColumn
-from dbt.adapters.spark.python_submissions import (
+from dbt.adapters.spark_livy import SparkConnectionManager
+from dbt.adapters.spark_livy import SparkRelation
+from dbt.adapters.spark_livy import SparkColumn
+from dbt.adapters.spark_livy.python_submissions import (
     JobClusterPythonJobHelper,
     AllPurposeClusterPythonJobHelper,
 )
@@ -28,7 +28,6 @@ from dbt.utils import executor
 
 logger = AdapterLogger("Spark")
 
-GET_COLUMNS_IN_RELATION_RAW_MACRO_NAME = "get_columns_in_relation_raw"
 LIST_SCHEMAS_MACRO_NAME = "list_schemas"
 LIST_RELATIONS_MACRO_NAME = "list_relations_without_caching"
 DROP_RELATION_MACRO_NAME = "drop_relation"
