@@ -162,7 +162,7 @@ class SparkCredentials(Credentials):
 
     @property
     def type(self):
-        return "spark"
+        return "spark_cde"
 
     @property
     def unique_field(self):
@@ -297,7 +297,7 @@ class PyodbcConnectionWrapper(PyhiveConnectionWrapper):
 
 
 class SparkConnectionManager(SQLConnectionManager):
-    TYPE = "spark"
+    TYPE = "spark_cde"
 
     SPARK_CLUSTER_HTTP_PATH = "/sql/protocolv1/o/{organization}/{cluster}"
     SPARK_SQL_ENDPOINT_HTTP_PATH = "/sql/1.0/endpoints/{endpoint}"
