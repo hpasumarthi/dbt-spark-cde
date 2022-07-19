@@ -2,7 +2,7 @@
   {{ return(adapter.dispatch('file_format_clause', 'dbt')()) }}
 {%- endmacro -%}
 
-{% macro spark_livy__file_format_clause() %}
+{% macro spark__file_format_clause() %}
   {%- set file_format = config.get('file_format', validator=validation.any[basestring]) -%}
   {%- if file_format is not none %}
     using {{ file_format }}
@@ -14,7 +14,7 @@
   {{ return(adapter.dispatch('location_clause', 'dbt')()) }}
 {%- endmacro -%}
 
-{% macro spark_livy__location_clause() %}
+{% macro spark__location_clause() %}
   {%- set location_root = config.get('location_root', validator=validation.any[basestring]) -%}
   {%- set identifier = model['alias'] -%}
   {%- if location_root is not none %}
@@ -27,7 +27,7 @@
   {{ return(adapter.dispatch('options_clause', 'dbt')()) }}
 {%- endmacro -%}
 
-{% macro spark_livy__options_clause() -%}
+{% macro spark__options_clause() -%}
   {%- set options = config.get('options') -%}
   {%- if config.get('file_format') == 'hudi' -%}
     {%- set unique_key = config.get('unique_key') -%}
@@ -54,7 +54,7 @@
   {{ return(adapter.dispatch('comment_clause', 'dbt')()) }}
 {%- endmacro -%}
 
-{% macro spark_livy__comment_clause() %}
+{% macro spark__comment_clause() %}
   {%- set raw_persist_docs = config.get('persist_docs', {}) -%}
 
   {%- if raw_persist_docs is mapping -%}
@@ -72,7 +72,7 @@
   {{ return(adapter.dispatch('partition_cols', 'dbt')(label, required)) }}
 {%- endmacro -%}
 
-{% macro spark_livy__partition_cols(label, required=false) %}
+{% macro spark__partition_cols(label, required=false) %}
   {%- set cols = config.get('partition_by', validator=validation.any[list, basestring]) -%}
   {%- if cols is not none %}
     {%- if cols is string -%}
@@ -92,7 +92,7 @@
   {{ return(adapter.dispatch('clustered_cols', 'dbt')(label, required)) }}
 {%- endmacro -%}
 
-{% macro spark_livy__clustered_cols(label, required=false) %}
+{% macro spark__clustered_cols(label, required=false) %}
   {%- set cols = config.get('clustered_by', validator=validation.any[list, basestring]) -%}
   {%- set buckets = config.get('buckets', validator=validation.any[int]) -%}
   {%- if (cols is not none) and (buckets is not none) %}
@@ -160,20 +160,20 @@
 {%- endmacro -%}
 
 
-{% macro spark_livy__create_view_as(relation, sql) -%}
+{% macro spark__create_view_as(relation, sql) -%}
   create or replace view {{ relation }}
   {{ comment_clause() }}
   as
     {{ sql }}
 {% endmacro %}
 
-{% macro spark_livy__create_schema(relation) -%}
+{% macro spark__create_schema(relation) -%}
   {%- call statement('create_schema') -%}
     create schema if not exists {{relation}}
   {% endcall %}
 {% endmacro %}
 
-{% macro spark_livy__drop_schema(relation) -%}
+{% macro spark__drop_schema(relation) -%}
   {%- call statement('drop_schema') -%}
     drop schema if exists {{ relation }} cascade
   {%- endcall -%}
@@ -194,7 +194,7 @@
   {{ return(adapter.get_columns_in_relation(relation)) }}
 {% endmacro %}
 
-{% macro spark_livy__list_relations_without_caching(relation) %}
+{% macro spark__list_relations_without_caching(relation) %}
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
     show table extended in {{ relation }} like '*'
   {% endcall %}
@@ -202,7 +202,7 @@
   {% do return(load_result('list_relations_without_caching').table) %}
 {% endmacro %}
 
-{% macro spark_livy__list_schemas(database) -%}
+{% macro spark__list_schemas(database) -%}
   {% call statement('list_schemas', fetch_result=True, auto_begin=False) %}
     show databases
   {% endcall %}
@@ -223,24 +223,24 @@
   {%- endcall %}
 {% endmacro %}
 
-{% macro spark_livy__drop_relation(relation) -%}
+{% macro spark__drop_relation(relation) -%}
   {% call statement('drop_relation', auto_begin=False) -%}
     drop {{ relation.type }} if exists {{ relation }}
   {%- endcall %}
 {% endmacro %}
 
 
-{% macro spark_livy__generate_database_name(custom_database_name=none, node=none) -%}
+{% macro spark__generate_database_name(custom_database_name=none, node=none) -%}
   {% do return(None) %}
 {%- endmacro %}
 
-{% macro spark_livy__persist_docs(relation, model, for_relation, for_columns) -%}
+{% macro spark__persist_docs(relation, model, for_relation, for_columns) -%}
   {% if for_columns and config.persist_column_docs() and model.columns %}
     {% do alter_column_comment(relation, model.columns) %}
   {% endif %}
 {% endmacro %}
 
-{% macro spark_livy__alter_column_comment(relation, column_dict) %}
+{% macro spark__alter_column_comment(relation, column_dict) %}
   {% if config.get('file_format', validator=validation.any[basestring]) in ['delta', 'hudi'] %}
     {% for column_name in column_dict %}
       {% set comment = column_dict[column_name]['description'] %}
@@ -256,7 +256,7 @@
 {% endmacro %}
 
 
-{% macro spark_livy__make_temp_relation(base_relation, suffix) %}
+{% macro spark__make_temp_relation(base_relation, suffix) %}
     {% set tmp_identifier = base_relation.identifier ~ suffix %}
     {% set tmp_relation = base_relation.incorporate(path = {
         "identifier": tmp_identifier
@@ -266,14 +266,14 @@
 {% endmacro %}
 
 
-{% macro spark_livy__alter_column_type(relation, column_name, new_column_type) -%}
+{% macro spark__alter_column_type(relation, column_name, new_column_type) -%}
   {% call statement('alter_column_type') %}
     alter table {{ relation }} alter column {{ column_name }} type {{ new_column_type }};
   {% endcall %}
 {% endmacro %}
 
 
-{% macro spark_livy__alter_relation_add_remove_columns(relation, add_columns, remove_columns) %}
+{% macro spark__alter_relation_add_remove_columns(relation, add_columns, remove_columns) %}
 
   {% if remove_columns %}
     {% set platform_name = 'Delta Lake' if relation.is_delta else 'Apache Spark' %}
