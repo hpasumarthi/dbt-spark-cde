@@ -19,7 +19,7 @@
 {% endmacro %}
 
 
-{% macro spark_livy__get_merge_sql(target, source, unique_key, dest_columns, predicates=none) %}
+{% macro spark_cde__get_merge_sql(target, source, unique_key, dest_columns, predicates=none) %}
   {# need dest_columns for merge_exclude_columns, default to use "*" #}
   {%- set predicates = [] if predicates is none else [] + predicates -%}
   {%- set dest_columns = adapter.get_columns_in_relation(target) -%}
