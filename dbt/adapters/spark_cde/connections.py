@@ -76,7 +76,6 @@ class SparkCredentials(Credentials):
     cluster: Optional[str] = None
     endpoint: Optional[str] = None
     token: Optional[str] = None
-    user: Optional[str] = None
     port: int = 443
     auth: Optional[str] = None
     kerberos_service_name: Optional[str] = None
