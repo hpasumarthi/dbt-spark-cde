@@ -11,10 +11,6 @@ resolves #
 
 ### Description
 
-<!---
-  Describe the Pull Request here. Add any references and info to help reviewers
-  understand your changes. Include any tradeoffs you considered.
--->
 
 ### Checklist
 
