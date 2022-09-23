@@ -72,6 +72,8 @@
 
   {% set should_revoke = should_revoke(existing_relation, full_refresh_mode) %}
   {% do apply_grants(target_relation, grant_config, should_revoke) %}
+  {% do adapter.drop_relation(tmp_relation.incorporate(type='table')) %}
+  {% do adapter.drop_relation(tmp_relation.incorporate(type='view')) %}
 
   {% do persist_docs(target_relation, model) %}
 
