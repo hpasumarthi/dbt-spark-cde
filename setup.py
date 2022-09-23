@@ -50,7 +50,7 @@ def _get_dbt_core_version():
 package_name = "dbt-spark-cde"
 package_version = "1.3.0"
 dbt_core_version = _get_dbt_core_version()
-description = """The dbt-spark-cde adapter plugin for Spark in Cloudera DataHub with Livy interface"""
+description = """The CDE API based Cloudera Spark adapter plugin for dbt"""
 
 odbc_extras = ["pyodbc>=4.0.30"]
 pyhive_extras = [
