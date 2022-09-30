@@ -162,7 +162,6 @@ class SparkCredentials(Credentials):
                     f"ImportError({e.msg})"
                 ) from e
 
-
     @property
     def type(self):
         return "spark_livy"
