@@ -3,10 +3,9 @@ from contextlib import contextmanager
 import os
 import json
 import time
-
+import dbt.adapters.spark_cde.__version__ as ver
+import dbt.adapters.spark_cde.cloudera_tracking as tracker
 import dbt.exceptions
-import dbt.adapters.spark_livy.__version__ as ver
-import dbt.adapters.spark_livy.cloudera_tracking as tracker
 
 from dbt.adapters.base import Credentials
 from dbt.adapters.sql import SQLConnectionManager
@@ -109,14 +108,13 @@ class SparkCredentials(Credentials):
         return self.cluster
 
     def __post_init__(self):
-
         # get platform information for tracking
         tracker.populate_platform_info(self, ver)
-        # get dbt deployment env information for tracking
-        tracker.populate_dbt_deployment_env_info()
+        # get cml information for tracking
+        tracker.populate_cml_info()
         # generate unique ids for tracking
         tracker.populate_unique_ids(self)
-
+        
         # spark classifies database and schema as the same thing
         if self.database is not None and self.database != self.schema:
             raise dbt.exceptions.RuntimeException(
@@ -723,26 +721,3 @@ def _is_retryable_error(exc: Exception) -> str:
         return str(exc)
     else:
         return ""
-
-# usage tracking code - Cloudera specific
-def track_usage(data):
-    import requests
-    from decouple import config
-
-    SNOWPLOW_ENDPOINT = config("SNOWPLOW_ENDPOINT")
-    SNOWPLOW_TIMEOUT = int(config("SNOWPLOW_TIMEOUT"))  # 10 seconds
-
-    # prod creds
-    headers = {
-        "x-api-key": config("SNOWPLOW_API_KEY"),
-        "x-datacoral-environment": config("SNOWPLOW_ENV"),
-        "x-datacoral-passthrough": "true",
-    }
-
-    data = json.dumps([data])
-
-    res = requests.post(
-        SNOWPLOW_ENDPOINT, data=data, headers=headers, timeout=SNOWPLOW_TIMEOUT
-    )
-
-    return res
