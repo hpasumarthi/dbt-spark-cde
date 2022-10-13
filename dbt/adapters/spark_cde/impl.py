@@ -15,11 +15,11 @@ from dbt.adapters.base import AdapterConfig, PythonJobHelper
 from dbt.adapters.base.impl import catch_as_completed
 from dbt.contracts.connection import AdapterResponse
 from dbt.adapters.sql import SQLAdapter
-from dbt.adapters.spark_livy import SparkConnectionManager
-from dbt.adapters.spark_livy import SparkRelation
-from dbt.adapters.spark_livy import SparkColumn
-import dbt.adapters.spark_livy.cloudera_tracking as tracker
-from dbt.adapters.spark_livy.python_submissions import (
+import dbt.adapters.spark_cde.cloudera_tracking as tracker
+from dbt.adapters.spark_cde import SparkConnectionManager
+from dbt.adapters.spark_cde import SparkRelation
+from dbt.adapters.spark_cde import SparkColumn
+from dbt.adapters.spark_cde.python_submissions import (
     JobClusterPythonJobHelper,
     AllPurposeClusterPythonJobHelper,
 )
@@ -407,19 +407,7 @@ class SparkAdapter(SQLAdapter):
         
     def debug_query(self) -> None:
         self.execute("select 1 as id")
-
         self.connections.get_thread_connection().handle.close()
-
-    def cleanup_connections(self) -> None:
-        self.connections.cleanup_all()
-        logger.debug("cleanup_connections")
-
-        # close all sessions
-        for conn_mgr in SparkConnectionManager.connection_managers:
-            SparkConnectionManager.connection_managers[conn_mgr].livy_global_session.delete_session()
-
-        # reset connection_manager list
-        SparkConnectionManager.connection_managers = {}
 
 # spark does something interesting with joins when both tables have the same
 # static values for the join condition and complains that the join condition is
