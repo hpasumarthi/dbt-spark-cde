@@ -1,4 +1,5 @@
 import re
+import json
 from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Union, Type
@@ -401,6 +402,39 @@ class SparkAdapter(SQLAdapter):
                 else:
                     grants_dict.update({privilege: [grantee]})
         return grants_dict
+        
+    def debug_query(self) -> None:
+        self.execute("select 1 as id")
+
+        # query warehouse version
+        try:
+            sql_query = "select version()"
+            _, table = self.execute(sql_query, True, True)
+            version_object = []
+            json_funcs = [c.jsonify for c in table.column_types]
+
+            for row in table.rows:
+                values = tuple(json_funcs[i](d) for i, d in enumerate(row))
+                version_object.append(OrderedDict(zip(row.keys(), values)))
+
+            version_json = json.dumps(version_object)
+
+            payload = {
+                "event_type": "dbt_spark_livy_warehouse",
+                "warehouse_version": version_json,
+            }
+            tracker.track_usage(payload)
+        except Exception as ex:
+            logger.error(
+                f"Failed to fetch warehouse version. Exception: {ex}"
+            )
+            payload = {
+                "event_type": "dbt_spark_livy_warehouse",
+                "warehouse_version": "NA",
+            }
+            tracker.track_usage(payload)
+
+        self.connections.get_thread_connection().handle.close()
 
 
 # spark does something interesting with joins when both tables have the same
