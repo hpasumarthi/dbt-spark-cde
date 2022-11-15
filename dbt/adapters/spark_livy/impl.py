@@ -18,6 +18,7 @@ from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.spark_livy import SparkConnectionManager
 from dbt.adapters.spark_livy import SparkRelation
 from dbt.adapters.spark_livy import SparkColumn
+import dbt.adapters.spark_livy.cloudera_tracking as tracker
 from dbt.adapters.spark_livy.python_submissions import (
     JobClusterPythonJobHelper,
     AllPurposeClusterPythonJobHelper,
