@@ -304,6 +304,8 @@ class SparkConnectionManager(SQLConnectionManager):
     SPARK_SQL_ENDPOINT_HTTP_PATH = "/sql/1.0/endpoints/{endpoint}"
     SPARK_CONNECTION_URL = "{host}:{port}" + SPARK_CLUSTER_HTTP_PATH
 
+    connection_managers = {}
+
     def __init__(self, profile: AdapterRequiredConfig):
         super().__init__(profile)
         # generate profile related object for instrumentation.
@@ -480,17 +482,22 @@ class SparkConnectionManager(SQLConnectionManager):
                     connection_start_time = time.time()
                     connection_ex = None
                     try:
+                        thread_id = cls.get_thread_identifier() 
+
+                        if not thread_id in SparkConnectionManager.connection_managers:
+                             SparkConnectionManager.connection_managers[thread_id] = LivyConnectionManager()
+
                         handle = LivySessionConnectionWrapper(
-                            LivyConnectionManager()
-                            .connect(
-                                creds.host,
-                                creds.user,
-                                creds.password,
-                                creds.auth,
-                                creds.livy_session_parameters,
-                                creds.verify_ssl_certificate
-                            )
+                             SparkConnectionManager.connection_managers[thread_id].connect(
+                                                             creds.host,
+                                                             creds.user,
+                                                             creds.password,
+                                                             creds.auth,
+                                                             creds.livy_session_parameters,
+                                                             creds.verify_ssl_certificate
+                                                         )
                         )
+
                         connection_end_time = time.time()
                         connection.state = ConnectionState.OPEN
                     except Exception as ex:
