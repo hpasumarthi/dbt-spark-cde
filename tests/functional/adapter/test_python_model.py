@@ -3,15 +3,15 @@ import pytest
 from dbt.tests.util import run_dbt, write_file, run_dbt_and_capture
 from dbt.tests.adapter.python_model.test_python_model import BasePythonModelTests, BasePythonIncrementalTests
 from dbt.tests.adapter.python_model.test_spark import BasePySparkTests
-@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy')
+@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy','cloudera_spark_cde')
 class TestPythonModelSpark(BasePythonModelTests):
     pass
 
-@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy')
+@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy','cloudera_spark_cde')
 class TestPySpark(BasePySparkTests):
     pass
 
-@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy')
+@pytest.mark.skip_profile("apache_spark", "spark_session", "databricks_sql_endpoint",'spark_livy','cloudera_spark_cde')
 class TestPythonIncrementalModelSpark(BasePythonIncrementalTests):
     @pytest.fixture(scope="class")
     def project_config_update(self):

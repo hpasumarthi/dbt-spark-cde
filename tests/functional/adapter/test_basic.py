@@ -25,7 +25,7 @@ class TestSingularTestsSpark(BaseSingularTests):
 
 # The local cluster currently tests on spark 2.x, which does not support this
 # if we upgrade it to 3.x, we can enable this test
-@pytest.mark.skip_profile('apache_spark','spark_livy')
+@pytest.mark.skip_profile('apache_spark','spark_livy','cloudera_spark_cde')
 class TestSingularTestsEphemeralSpark(BaseSingularTestsEphemeral):
     pass
 

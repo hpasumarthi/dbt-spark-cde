@@ -122,13 +122,13 @@
 {%- endmacro -%}
 
 {#-- We can't use temporary tables with `create ... as ()` syntax --#}
-{% macro spark_livy__create_temporary_view(relation, compiled_code) -%}
+{% macro spark_cde__create_temporary_view(relation, compiled_code) -%}
     create temporary view {{ relation }} as
       {{ compiled_code }}
 {%- endmacro -%}
 
 
-{%- macro spark_livy__create_table_as(temporary, relation, compiled_code, language='sql') -%}
+{%- macro spark_cde__create_table_as(temporary, relation, compiled_code, language='sql') -%}
   {%- if language == 'sql' -%}
     {%- if temporary -%}
       {{ create_temporary_view(relation, compiled_code) }}
@@ -183,14 +183,14 @@
   {{ return(adapter.dispatch('get_columns_in_relation_raw', 'dbt')(relation)) }}
 {%- endmacro -%}
 
-{% macro spark_livy__get_columns_in_relation_raw(relation) -%}
+{% macro spark_cde__get_columns_in_relation_raw(relation) -%}
   {% call statement('get_columns_in_relation_raw', fetch_result=True) %}
       describe extended {{ relation }}
   {% endcall %}
   {% do return(load_result('get_columns_in_relation_raw').table) %}
 {% endmacro %}
 
-{% macro spark_livy__get_columns_in_relation(relation) -%}
+{% macro spark_cde__get_columns_in_relation(relation) -%}
   {{ return(adapter.get_columns_in_relation(relation)) }}
 {% endmacro %}
 
@@ -209,7 +209,7 @@
   {{ return(load_result('list_schemas').table) }}
 {% endmacro %}
 
-{% macro spark_livy__rename_relation(from_relation, to_relation) -%}
+{% macro spark_cde__rename_relation(from_relation, to_relation) -%}
   {% call statement('rename_relation') -%}
     {% if not from_relation.type %}
       {% do exceptions.raise_database_error("Cannot rename a relation with a blank type: " ~ from_relation.identifier) %}

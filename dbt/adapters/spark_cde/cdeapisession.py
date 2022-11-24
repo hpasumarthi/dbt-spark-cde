@@ -24,6 +24,8 @@ import random
 import requests
 import time
 import traceback
+import hashlib
+
 
 from dbt.events import AdapterLogger
 from dbt.utils import DECIMALS
@@ -111,11 +113,12 @@ class CDEApiCursor:
     # randomize the job name generated based on current time as we can have multiple threads
     # running, and we want to have a unique job id.
     def generate_job_name(self):
+        # job name cannot be more than 64 chars, and needs to be unique
         time_ms = round(time.time() * 1000)
-        model_name = str(self._model_name)
-        job_name = (
-            "dbt-job-" + model_name + '-' + repr(time_ms) + "-" + str(random.randint(0, 1000)).zfill(8)
-        )
+        model_name = str(self._model_name)[:48]
+        random_id = repr(time_ms) + "-" + str(random.randint(0, 1000)).zfill(4)
+        hash_id = hashlib.sha1(random_id.encode("UTF-8")).hexdigest()[:10]
+        job_name = "dbt-" + model_name + '-' + hash_id
         return job_name
 
     def execute(self, sql: str, *parameters: Any) -> None:
@@ -384,7 +387,7 @@ class CDEApiConnection:
             res = self(*args, **kwargs)
             if res is None or res.status_code not in range(200, 300):
                 raise dbt.exceptions.DbtProfileError(
-                    "Error communicating with cde spark host.",
+                    f"Error communicating with cde spark host. Error: {res.text} {res}",
                 )
                 res.raise_for_status()
             return res

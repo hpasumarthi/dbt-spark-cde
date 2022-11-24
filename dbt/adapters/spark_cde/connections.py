@@ -79,6 +79,9 @@ class SparkConnectionMethod(StrEnum):
 class SparkCredentials(Credentials):
     host: str
     method: SparkConnectionMethod
+    auth_endpoint: str
+    user: str
+    password: str
     database: Optional[str]  # type: ignore
     driver: Optional[str] = None
     cluster: Optional[str] = None
@@ -609,7 +612,7 @@ class SparkConnectionManager(SQLConnectionManager):
             SparkConnectionManager.spark_version = res[0][0].split(".")[0]
 
             payload = {
-                "event_type": "dbt_spark_livy_warehouse",
+                "event_type": "dbt_spark_cde_warehouse",
                 "warehouse_version": { "version": SparkConnectionManager.spark_version, "build": res[0][0] },
             }
             tracker.track_usage(payload)
@@ -619,7 +622,7 @@ class SparkConnectionManager(SQLConnectionManager):
             SparkConnectionManager.spark_version = "2"
 
             payload = {
-                "event_type": "dbt_spark_livy_warehouse",
+                "event_type": "dbt_spark_cde_warehouse",
                 "warehouse_version": { "version": "2", "build": "NA" },
             }
             tracker.track_usage(payload)

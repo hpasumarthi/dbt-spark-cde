@@ -2,6 +2,9 @@
   {#-- Validate early so we don't run SQL if the file_format + strategy combo is invalid --#}
   {%- set raw_file_format = config.get('file_format', default='parquet') -%}
   {%- set raw_strategy = config.get('incremental_strategy') or 'append' -%}
+    {% if raw_strategy == None %}
+      {% set raw_strategy = 'append' %}
+    {% endif %}
   {%- set grant_config = config.get('grants') -%}
 
   {%- set file_format = dbt_spark_validate_get_file_format(raw_file_format) -%}
@@ -50,7 +53,9 @@
   {%- else -%}
     {#-- Relation must be merged --#}
     {%- call statement('create_tmp_relation', language=language) -%}
-      {{ create_table_as(True, tmp_relation, compiled_code, language) }}
+      {% do adapter.drop_relation(tmp_relation.incorporate(type='table')) %}
+      {% do adapter.drop_relation(tmp_relation.incorporate(type='view')) %}
+      {{ create_table_as(False, tmp_relation, compiled_code, language) }}
     {%- endcall -%}
     {%- do process_schema_changes(on_schema_change, tmp_relation, existing_relation) -%}
     {%- call statement('main') -%}
