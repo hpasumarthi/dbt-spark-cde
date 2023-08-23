@@ -154,12 +154,14 @@ class SparkAdapter(SQLAdapter):
             rel_type = RelationType.View if "Type: VIEW" in information else RelationType.Table
             is_delta = "Provider: delta" in information
             is_hudi = "Provider: hudi" in information
+            is_iceberg: bool = "Provider: iceberg" in information
             relation = self.Relation.create(
                 schema=_schema,
                 identifier=name,
                 type=rel_type,
                 information=information,
                 is_delta=is_delta,
+                is_iceberg=is_iceberg,
                 is_hudi=is_hudi,
             )
             relations.append(relation)
